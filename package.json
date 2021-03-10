@@ -1,0 +1,27 @@
+{
+  "name": "conversation-server",
+  "version": "1.0.0",
+  "description": "Description to come!",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qvistdev09/conversation-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/qvistdev09/conversation-server/issues"
+  },
+  "homepage": "https://github.com/qvistdev09/conversation-server#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1"
+  }
+}
