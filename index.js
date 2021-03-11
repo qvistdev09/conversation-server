@@ -39,6 +39,11 @@ io.on('connection', socket => {
   socket.on('create-channel', label => {
     conversations.createChannel(label);
   });
+
+  socket.on('update-name', newUsername => {
+    users.updateName(newUsername, socket);
+  });
+
 });
 
 app.get('/', (req, res) => {

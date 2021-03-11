@@ -50,6 +50,14 @@ class UsersStore extends BaseStore {
     this.users = this.users.filter(user => user.socket.id !== socket.id);
     this.emit();
   }
+
+  updateName(newUsername, socket) {
+    const userMatch = this.users.find(user => user.socket.id === socket.id);
+    if (userMatch) {
+      userMatch.name = newUsername;
+      this.emit();
+    }
+  }
 }
 
 module.exports = io => new UsersStore(io);
