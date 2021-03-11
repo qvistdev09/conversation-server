@@ -23,16 +23,26 @@ class UsersStore extends BaseStore {
     const adjective = faker.commerce.productAdjective().toLowerCase();
     const noun = faker.commerce.product().toLowerCase();
     return `${adjective}-${noun}`.replace(' ', '-');
-  };
+  }
 
   add(socket) {
     const newUser = {
       name: this.createName(),
       pubId: this.createId(this.users, 'pubId'),
       socket,
+      activeConversation: 0,
     };
     this.users.push(newUser);
     this.emit();
+  }
+
+  setActiveConversation(socket, id) {
+    const userMatch = this.users.find(user => user.socket.id === socket.id);
+    if (!userMatch) {
+      return;
+    }
+    userMatch.activeConversation = id;
+    console.log(userMatch.name, userMatch.activeConversation);
   }
 
   remove(socket) {

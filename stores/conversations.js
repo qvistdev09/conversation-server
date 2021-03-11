@@ -16,19 +16,21 @@ class ConversationsStore extends BaseStore {
     this.io.emit(eventName, list);
   }
 
-  emitChannelMessages(id, socket) {
-    const channelMatch = this.channels.find(channel => channel.id === id);
-    if (!channelMatch) {
+  emitMessages(conversationId, socket) {
+    const conversationMatch = this.channels.find(channel => channel.id === conversationId);
+    if (!conversationMatch) {
       return;
     }
 
     const eventName = 'channel-message';
-    const messages = channelMatch.messages;
+    const messages = conversationMatch.messages;
 
     if (socket) {
-      return socket.emit(eventName, messages);
+      return socket.emit(eventName, messages)
     }
-    this.io.emit(eventName, messages);
+
+    const roomId = conversationId.toString();
+    this.io.to(roomId).emit(eventName, messages);
   }
 
   createChannel(label) {
@@ -42,14 +44,14 @@ class ConversationsStore extends BaseStore {
   }
 
   addMessage(data) {
-    const channelMatch = this.channels.find(channel => channel.id === data.id);
-    if (channelMatch) {
+    const conversationMatch = this.channels.find(channel => channel.id === data.id);
+    if (conversationMatch) {
       const newMessage = {
-        id: this.createId(channelMatch.messages, 'id'),
+        id: this.createId(conversationMatch.messages, 'id'),
         text: data.text,
       };
-      channelMatch.messages.push(newMessage);
-      this.emitChannelMessages(data.id);
+      conversationMatch.messages.push(newMessage);
+      this.emitMessages(data.id);
     }
   }
 }

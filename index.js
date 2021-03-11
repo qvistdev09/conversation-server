@@ -18,8 +18,9 @@ const users = require('./stores/users')(io);
 
 io.on('connection', socket => {
   users.add(socket);
+  socket.join('0');
   conversations.emitChannelList(socket);
-  conversations.emitChannelMessages(0, socket);
+  conversations.emitMessages(0, socket);
 
   socket.on('disconnect', () => {
     users.remove(socket);
@@ -28,6 +29,13 @@ io.on('connection', socket => {
   socket.on('message', data => {
     conversations.addMessage(data);
   });
+
+  socket.on('set-active', conversationId => {
+    socket.leaveAll();
+    socket.join(conversationId.toString());
+    conversations.emitMessages(conversationId, socket);
+  });
+  
 });
 
 app.get('/', (req, res) => {
