@@ -9,15 +9,12 @@ const options = {
 const io = require('socket.io')(httpServer, options);
 
 // users store
-const { addUser, removeUser, getUsers } = require('./stores/users');
+const users = require('./stores/users')(io);
 
 io.on('connection', socket => {
-  addUser(socket);
-  io.emit('userlist', getUsers());
-
+  users.add(socket);
   socket.on('disconnect', () => {
-    removeUser(socket);
-    io.emit('userlist', getUsers());
+    users.remove(socket);
   });
 });
 

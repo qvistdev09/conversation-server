@@ -1,26 +1,42 @@
 const faker = require('faker');
 
-let users = [];
+class UsersStore {
+  constructor(io) {
+    this.io = io;
+    this.users = [];
+  }
 
-const getId = () =>
-  users.length < 1 ? 0 : users.map(user => user.pubId).reduce((acc, curr) => (acc > curr ? acc : curr)) + 1;
+  get() {
+    return this.users.map(user => ({
+      name: user.name,
+      pubId: user.pubId,
+    }));
+  }
 
-const addUser = socket => {
-  const newUser = {
-    name: faker.name.firstName(),
-    pubId: getId(),
-    socket,
-  };
-  users.push(newUser);
-};
+  emit() {
+    this.io.emit('userlist', this.get());
+  }
 
-const removeUser = socket => {
-  users = users.filter(user => user.socket.id !== socket.id);
+  getId() {
+    return this.users.length < 1
+      ? 0
+      : this.users.map(user => user.pubId).reduce((acc, curr) => (acc > curr ? acc : curr)) + 1;
+  }
+
+  add(socket) {
+    const newUser = {
+      name: faker.name.firstName(),
+      pubId: this.getId(),
+      socket,
+    };
+    this.users.push(newUser);
+    this.emit();
+  }
+
+  remove(socket) {
+    this.users = this.users.filter(user => user.socket.id !== socket.id);
+    this.emit();
+  }
 }
 
-const getUsers = () => users.map(user => ({
-  name: user.name,
-  pubId: user.pubId,
-}));
-
-module.exports = { addUser, removeUser, getUsers };
+module.exports = io => new UsersStore(io);
