@@ -33,6 +33,7 @@ class UsersStore extends BaseStore {
       activeConversation: 0,
     };
     this.users.push(newUser);
+    socket.emit('user-id', newUser.pubId);
     this.emit();
   }
 
