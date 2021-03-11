@@ -34,6 +34,7 @@ io.on('connection', socket => {
   socket.on('set-active', conversationId => {
     socket.leaveAll();
     socket.join(conversationId.toString());
+    users.setActiveConversation(socket, conversationId);
     conversations.emitMessages(conversationId, socket);
   });
 

@@ -42,12 +42,11 @@ class UsersStore extends BaseStore {
   }
 
   setActiveConversation(socket, id) {
-    const userMatch = this.users.find(user => user.socket.id === socket.id);
+    const userMatch = this.users.find(user => user.online && user.socket.id === socket.id);
     if (!userMatch) {
       return;
     }
     userMatch.activeConversation = id;
-    console.log(userMatch.name, userMatch.activeConversation);
   }
 
   remove(socket) {
