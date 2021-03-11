@@ -1,7 +1,16 @@
 require('dotenv').config();
-const express = require('express');
+const app = require('express')();
+const httpServer = require('http').createServer(app);
+const options = {
+  cors: {
+    origin: process.env.ALLOWED_ORIGIN,
+  },
+};
+const io = require('socket.io')(httpServer, options);
 
-const app = express();
+io.on('connection', socket => {
+  socket.emit('connection-test', 'Connection works');
+});
 
 app.get('/', (req, res) => {
   res.send('At root');
@@ -9,6 +18,6 @@ app.get('/', (req, res) => {
 
 const port = process.env.PORT;
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
   console.log(`Server running at port ${port}`);
 });
