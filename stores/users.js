@@ -69,6 +69,8 @@ class UsersStore extends BaseStore {
           name: user.name,
           pubId: user.pubId,
           online: false,
+          color: user.color,
+          icon: user.icon,
         };
       }
       return user;
