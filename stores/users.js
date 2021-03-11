@@ -1,7 +1,9 @@
 const faker = require('faker');
+const BaseStore = require('./base');
 
-class UsersStore {
+class UsersStore extends BaseStore {
   constructor(io) {
+    super();
     this.io = io;
     this.users = [];
   }
@@ -17,12 +19,6 @@ class UsersStore {
     this.io.emit('userlist', this.get());
   }
 
-  getId() {
-    return this.users.length < 1
-      ? 0
-      : this.users.map(user => user.pubId).reduce((acc, curr) => (acc > curr ? acc : curr)) + 1;
-  }
-
   createName() {
     const adjective = faker.commerce.productAdjective().toLowerCase();
     const noun = faker.commerce.product().toLowerCase();
@@ -32,7 +28,7 @@ class UsersStore {
   add(socket) {
     const newUser = {
       name: this.createName(),
-      pubId: this.getId(),
+      pubId: this.createId(this.users, 'pubId'),
       socket,
     };
     this.users.push(newUser);

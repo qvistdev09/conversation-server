@@ -1,5 +1,8 @@
-class ConversationsStore {
+const BaseStore = require('./base');
+
+class ConversationsStore extends BaseStore {
   constructor(io) {
+    super();
     this.io = io;
     this.channels = [];
   }
@@ -9,15 +12,9 @@ class ConversationsStore {
     this.io.emit('channellist', list);
   }
 
-  getId(conversationsArray) {
-    return conversationsArray.length < 1
-      ? 0
-      : conversationsArray.map(conversation => conversation.id).reduce((acc, curr) => (acc > curr ? acc : curr)) + 1;
-  }
-
   createChannel(label) {
     const newChannel = {
-      id: this.getId(this.channels),
+      id: this.createId(this.channels, 'id'),
       label,
       messages: [],
     };
