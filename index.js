@@ -8,6 +8,10 @@ const options = {
 };
 const io = require('socket.io')(httpServer, options);
 
+// conversations store
+const conversations = require('./stores/conversations')(io);
+conversations.createChannel('main');
+
 // users store
 const users = require('./stores/users')(io);
 
