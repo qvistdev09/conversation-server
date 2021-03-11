@@ -1,4 +1,5 @@
 const faker = require('faker');
+const randomColor = require('randomcolor');
 const BaseStore = require('./base');
 
 class UsersStore extends BaseStore {
@@ -13,11 +14,21 @@ class UsersStore extends BaseStore {
       name: user.name,
       pubId: user.pubId,
       online: user.online,
+      color: user.color,
+      icon: user.icon,
     }));
   }
 
   emit() {
     this.io.emit('user-list', this.get());
+  }
+
+  randomIcon() {
+    return Math.floor(Math.random() * 51).toString();
+  }
+
+  randomColor() {
+    return randomColor();
   }
 
   createName() {
@@ -35,6 +46,8 @@ class UsersStore extends BaseStore {
       online: true,
       isTyping: false,
       typingTimer: null,
+      color: this.randomColor(),
+      icon: this.randomIcon(),
     };
     this.users.push(newUser);
     socket.emit('user-id', newUser.pubId);
