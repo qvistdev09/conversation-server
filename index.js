@@ -35,7 +35,10 @@ io.on('connection', socket => {
     socket.join(conversationId.toString());
     conversations.emitMessages(conversationId, socket);
   });
-  
+
+  socket.on('create-channel', label => {
+    conversations.createChannel(label);
+  });
 });
 
 app.get('/', (req, res) => {
