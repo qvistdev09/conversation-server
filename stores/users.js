@@ -33,6 +33,8 @@ class UsersStore extends BaseStore {
       socket,
       activeConversation: 0,
       online: true,
+      isTyping: false,
+      typingTimer: null,
     };
     this.users.push(newUser);
     socket.emit('user-id', newUser.pubId);
@@ -67,6 +69,37 @@ class UsersStore extends BaseStore {
     if (userMatch) {
       userMatch.name = newUsername;
       this.emit();
+    }
+  }
+
+  emitActive(conversationId) {
+    const usersTyping = this.users
+      .filter(user => user.isTyping)
+      .filter(user => user.activeConversation === conversationId)
+      .map(user => user.pubId);
+    const roomId = conversationId.toString();
+    this.io.to(roomId).emit('users-typing', usersTyping);
+  }
+
+  cancelTyping(socket) {
+    const userMatch = this.users.find(user => user.online && user.socket.id === socket.id);
+    if (userMatch) {
+      clearTimeout(userMatch.typingTimer);
+      userMatch.isTyping = false;
+      this.emitActive(userMatch.activeConversation);
+    }
+  }
+
+  updateTypingStatus(socket) {
+    const userMatch = this.users.find(user => user.online && user.socket.id === socket.id);
+    if (userMatch) {
+      clearTimeout(userMatch.typingTimer);
+      userMatch.isTyping = true;
+      this.emitActive(userMatch.activeConversation);
+      userMatch.typingTimer = setTimeout(() => {
+        userMatch.isTyping = false;
+        this.emitActive(userMatch.activeConversation);
+      }, 1000);
     }
   }
 }

@@ -27,6 +27,7 @@ io.on('connection', socket => {
   });
 
   socket.on('message', data => {
+    users.cancelTyping(socket);
     conversations.addMessage(data);
   });
 
@@ -44,6 +45,9 @@ io.on('connection', socket => {
     users.updateName(newUsername, socket);
   });
 
+  socket.on('is-typing', () => {
+    users.updateTypingStatus(socket);
+  });
 });
 
 app.get('/', (req, res) => {
