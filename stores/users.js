@@ -16,7 +16,7 @@ class UsersStore extends BaseStore {
   }
 
   emit() {
-    this.io.emit('userlist', this.get());
+    this.io.emit('user-list', this.get());
   }
 
   createName() {

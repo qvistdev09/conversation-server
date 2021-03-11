@@ -11,12 +11,14 @@ const io = require('socket.io')(httpServer, options);
 // conversations store
 const conversations = require('./stores/conversations')(io);
 conversations.createChannel('main');
+conversations.createChannel('channel2');
 
 // users store
 const users = require('./stores/users')(io);
 
 io.on('connection', socket => {
   users.add(socket);
+  conversations.emitChannelList(socket);
   socket.on('disconnect', () => {
     users.remove(socket);
   });

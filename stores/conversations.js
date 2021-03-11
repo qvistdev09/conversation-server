@@ -7,9 +7,13 @@ class ConversationsStore extends BaseStore {
     this.channels = [];
   }
 
-  emitChannelList() {
-    const list = this.channels.map(channel => channel.label);
-    this.io.emit('channellist', list);
+  emitChannelList(socket) {
+    const eventName = 'channel-list';
+    const list = this.channels.map(channel => ({ label: channel.label, id: channel.id }));
+    if (socket) {
+      return socket.emit(eventName, list);
+    }
+    this.io.emit(eventName, list);
   }
 
   createChannel(label) {
