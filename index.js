@@ -9,11 +9,16 @@ const options = {
 const io = require('socket.io')(httpServer, options);
 
 io.on('connection', socket => {
+  console.log('a client connected');
   socket.emit('connection-test', 'Connection works');
+
+  socket.on('disconnect', () => {
+    console.log('a client disconnected');
+  })
 });
 
 app.get('/', (req, res) => {
-  res.send('At root');
+  res.send(`Currently connected sockets: ${io.of('/').sockets.size}`);
 });
 
 const port = process.env.PORT;
