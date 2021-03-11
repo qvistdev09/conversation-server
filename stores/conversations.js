@@ -16,6 +16,21 @@ class ConversationsStore extends BaseStore {
     this.io.emit(eventName, list);
   }
 
+  emitChannelMessages(id, socket) {
+    const channelMatch = this.channels.find(channel => channel.id === id);
+    if (!channelMatch) {
+      return;
+    }
+
+    const eventName = 'channel-message';
+    const messages = channelMatch.messages;
+
+    if (socket) {
+      return socket.emit(eventName, messages);
+    }
+    this.io.emit(eventName, messages);
+  }
+
   createChannel(label) {
     const newChannel = {
       id: this.createId(this.channels, 'id'),
@@ -24,6 +39,18 @@ class ConversationsStore extends BaseStore {
     };
     this.channels.push(newChannel);
     this.emitChannelList();
+  }
+
+  addMessage(data) {
+    const channelMatch = this.channels.find(channel => channel.id === data.id);
+    if (channelMatch) {
+      const newMessage = {
+        id: this.createId(channelMatch.messages, 'id'),
+        text: data.text,
+      };
+      channelMatch.messages.push(newMessage);
+      this.emitChannelMessages(data.id);
+    }
   }
 }
 

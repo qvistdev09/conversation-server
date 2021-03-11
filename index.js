@@ -19,8 +19,14 @@ const users = require('./stores/users')(io);
 io.on('connection', socket => {
   users.add(socket);
   conversations.emitChannelList(socket);
+  conversations.emitChannelMessages(0, socket);
+
   socket.on('disconnect', () => {
     users.remove(socket);
+  });
+
+  socket.on('message', data => {
+    conversations.addMessage(data);
   });
 });
 
