@@ -8,13 +8,17 @@ const options = {
 };
 const io = require('socket.io')(httpServer, options);
 
+// users store
+const { addUser, removeUser, getUsers } = require('./stores/users');
+
 io.on('connection', socket => {
-  console.log('a client connected');
-  socket.emit('connection-test', 'Connection works');
+  addUser(socket);
+  io.emit('userlist', getUsers());
 
   socket.on('disconnect', () => {
-    console.log('a client disconnected');
-  })
+    removeUser(socket);
+    io.emit('userlist', getUsers());
+  });
 });
 
 app.get('/', (req, res) => {
