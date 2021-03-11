@@ -12,6 +12,7 @@ class UsersStore extends BaseStore {
     return this.users.map(user => ({
       name: user.name,
       pubId: user.pubId,
+      online: user.online,
     }));
   }
 
@@ -31,6 +32,7 @@ class UsersStore extends BaseStore {
       pubId: this.createId(this.users, 'pubId'),
       socket,
       activeConversation: 0,
+      online: true,
     };
     this.users.push(newUser);
     socket.emit('user-id', newUser.pubId);
@@ -47,12 +49,21 @@ class UsersStore extends BaseStore {
   }
 
   remove(socket) {
-    this.users = this.users.filter(user => user.socket.id !== socket.id);
+    this.users = this.users.map(user => {
+      if (user.online && user.socket.id === socket.id) {
+        return {
+          name: user.name,
+          pubId: user.pubId,
+          online: false,
+        };
+      }
+      return user;
+    });
     this.emit();
   }
 
   updateName(newUsername, socket) {
-    const userMatch = this.users.find(user => user.socket.id === socket.id);
+    const userMatch = this.users.find(user => user.online && user.socket.id === socket.id);
     if (userMatch) {
       userMatch.name = newUsername;
       this.emit();

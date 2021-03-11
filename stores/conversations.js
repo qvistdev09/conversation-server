@@ -26,7 +26,7 @@ class ConversationsStore extends BaseStore {
     const messages = conversationMatch.messages;
 
     if (socket) {
-      return socket.emit(eventName, messages)
+      return socket.emit(eventName, messages);
     }
 
     const roomId = conversationId.toString();
@@ -48,7 +48,9 @@ class ConversationsStore extends BaseStore {
     if (conversationMatch) {
       const newMessage = {
         id: this.createId(conversationMatch.messages, 'id'),
+        by: data.by,
         text: data.text,
+        time: new Date().toString(),
       };
       conversationMatch.messages.push(newMessage);
       this.emitMessages(data.id);
