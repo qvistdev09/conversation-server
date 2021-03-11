@@ -23,9 +23,15 @@ class UsersStore {
       : this.users.map(user => user.pubId).reduce((acc, curr) => (acc > curr ? acc : curr)) + 1;
   }
 
+  createName() {
+    const adjective = faker.commerce.productAdjective().toLowerCase();
+    const noun = faker.commerce.product().toLowerCase();
+    return `${adjective}-${noun}`.replace(' ', '-');
+  };
+
   add(socket) {
     const newUser = {
-      name: faker.name.firstName(),
+      name: this.createName(),
       pubId: this.getId(),
       socket,
     };
