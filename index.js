@@ -11,7 +11,6 @@ const io = require('socket.io')(httpServer, options);
 // setup conversations store
 const conversations = require('./stores/conversations')(io);
 conversations.createChannel('main');
-conversations.createChannel('channel2');
 
 // setup users store
 const users = require('./stores/users')(io);
