@@ -54,6 +54,7 @@ class ConversationsStore extends BaseStore {
       };
       conversationMatch.messages.push(newMessage);
       this.emitMessages(data.id);
+      this.io.emit('new-channel-message', data.id);
     }
   }
 }
