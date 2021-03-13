@@ -8,45 +8,38 @@ const options = {
 };
 const io = require('socket.io')(httpServer, options);
 
-// setup conversations store
-const conversations = require('./stores/conversations')(io);
-conversations.createChannel('main');
-
-// setup users store
-const users = require('./stores/users')(io);
+const chatManager = require('./classes/manager')(io);
+chatManager.createChannel('main');
 
 io.on('connection', socket => {
-  users.add(socket);
-  socket.join('0');
-  conversations.emitChannelList(socket);
-  conversations.emitMessages(0, socket);
+  chatManager.handleSocketConnect(socket);
 
   socket.on('disconnect', () => {
-    users.remove(socket);
+    chatManager.handleSocketDisconnect(socket);
   });
 
-  socket.on('message', data => {
-    users.cancelTyping(socket);
-    conversations.addMessage(data);
+  socket.on('channel-message', textContent => {
+    chatManager.newChannelMessage(socket, textContent);
   });
 
-  socket.on('set-active', conversationId => {
-    socket.leaveAll();
-    socket.join(conversationId.toString());
-    users.setActiveConversation(socket, conversationId);
-    conversations.emitMessages(conversationId, socket);
+  socket.on('need-message', (channelId, messageId, callback) => {
+    chatManager.serveMessage(channelId, messageId, callback);
+  });
+
+  socket.on('set-channel', channelId => {
+    chatManager.handleChannelSwitch(socket, channelId);
   });
 
   socket.on('create-channel', label => {
-    conversations.createChannel(label);
+    chatManager.createChannel(label);
   });
 
-  socket.on('update-name', newUsername => {
-    users.updateName(newUsername, socket);
+  socket.on('update-name', newName => {
+    chatManager.handleNameChange(socket, newName);
   });
 
   socket.on('is-typing', () => {
-    users.updateTypingStatus(socket);
+    chatManager.handleIsTyping(socket);
   });
 });
 
