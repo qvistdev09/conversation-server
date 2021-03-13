@@ -67,6 +67,7 @@ class Manager extends BaseStore {
 
   handleSocketConnect(socket) {
     this.users.add(socket);
+    socket.emit('clear-cache');
     socket.emit('user-id', this.users.findUser(socket).id);
     socket.join('0');
     const mainChannel = this.findChannel(0);
