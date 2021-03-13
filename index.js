@@ -13,6 +13,7 @@ chatManager.createChannel('main');
 
 io.on('connection', socket => {
   chatManager.handleSocketConnect(socket);
+  console.log(socket.request.connection.remoteAddress, 'client ip');
 
   socket.on('disconnect', () => {
     chatManager.handleSocketDisconnect(socket);
