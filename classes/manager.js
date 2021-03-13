@@ -43,10 +43,14 @@ class Manager extends BaseStore {
     return this.channels.find(channel => channel.id === id);
   }
 
+  emitBlock(status, socket) {
+    socket.emit('spam-block', status);
+  }
+
   newChannelMessage(socket, textContent) {
-    // spam check, is user allowed to type?
     const matchedUser = this.users.findUser(socket);
-    if (matchedUser) {
+    if (matchedUser && matchedUser.hiddenFields.spamBlocked === false) {
+      this.users.spamCheck(matchedUser, status => this.emitBlock(status, socket));
       const matchedChannel = this.findChannel(matchedUser.hiddenFields.activeConversation);
       if (matchedChannel) {
         matchedChannel.addMessage(matchedUser.id, textContent);

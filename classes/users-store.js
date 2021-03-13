@@ -8,6 +8,9 @@ class UsersStore extends BaseStore {
     super();
     this.users = [];
     this.iconsCount = 50;
+    this.spamTimeChunk = 1000;
+    this.maxSpam = 4;
+    this.blockLength = 5000;
   }
 
   getRandomIcon() {
@@ -42,9 +45,35 @@ class UsersStore extends BaseStore {
         isTyping: false,
         typingTimer: null,
         activeConversation: 0,
+        spamBlocked: false,
+        spamReference: new Date(),
+        spamCount: 0,
+        spamBlockTimeout: null,
       },
     };
     this.users.push(newUser);
+  }
+
+  blockSpammer(userMatch, emitFunction) {
+    userMatch.hiddenFields.spamBlocked = true;
+    emitFunction(true);
+    clearTimeout(userMatch.hiddenFields.spamBlockTimeout);
+    userMatch.hiddenFields.spamBlockTimeout = setTimeout(() => {
+      userMatch.hiddenFields.spamBlocked = false;
+      emitFunction(false);
+    }, this.blockLength);
+  }
+
+  spamCheck(userMatch, emitFunction) {
+    const timeSinceLast = new Date() - userMatch.hiddenFields.spamReference;
+    if (timeSinceLast < this.spamTimeChunk) {
+      userMatch.hiddenFields.spamCount += 1;
+      if (userMatch.hiddenFields.spamCount >= this.maxSpam - 1) {
+        this.blockSpammer(userMatch, emitFunction);
+      }
+    } else {
+      userMatch.hiddenFields.spamReference = new Date();
+    }
   }
 
   remove(socket) {
