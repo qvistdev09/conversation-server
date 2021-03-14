@@ -9,8 +9,8 @@ class UsersStore extends BaseStore {
     this.users = [];
     this.iconsCount = 50;
     this.spamTimeChunk = 1000;
-    this.maxSpam = 4;
-    this.blockLength = 5000;
+    this.maxSpam = 10;
+    this.blockLength = 10000;
   }
 
   getRandomIcon() {
