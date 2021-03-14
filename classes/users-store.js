@@ -60,6 +60,7 @@ class UsersStore extends BaseStore {
     clearTimeout(userMatch.hiddenFields.spamBlockTimeout);
     userMatch.hiddenFields.spamBlockTimeout = setTimeout(() => {
       userMatch.hiddenFields.spamBlocked = false;
+      userMatch.hiddenFields.spamCount = 0;
       emitFunction(false);
     }, this.blockLength);
   }
@@ -73,6 +74,7 @@ class UsersStore extends BaseStore {
       }
     } else {
       userMatch.hiddenFields.spamReference = new Date();
+      userMatch.hiddenFields.spamCount = 0;
     }
   }
 
