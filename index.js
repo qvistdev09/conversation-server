@@ -23,8 +23,8 @@ io.on('connection', socket => {
     chatManager.newChannelMessage(socket, textContent);
   });
 
-  socket.on('need-message', (channelId, messageId, callback) => {
-    chatManager.serveMessage(channelId, messageId, callback);
+  socket.on('need-messages', (channelId, messageIdArray, callback) => {
+    chatManager.serveMessages(channelId, messageIdArray, callback);
   });
 
   socket.on('set-channel', channelId => {

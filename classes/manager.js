@@ -112,15 +112,13 @@ class Manager extends BaseStore {
     this.io.emit(userslistChange, this.users.getPublicList());
   }
 
-  serveMessage(channelId, messageId, callback) {
+  serveMessages(channelId, messageIdArray, callback) {
     const channelMatch = this.findChannel(channelId);
     if (channelMatch) {
-      const messageMatch = channelMatch.getMessage(messageId);
-      if (messageMatch) {
-        return callback(messageMatch);
-      }
+      const retrievedMessages = [];
+      messageIdArray.forEach(request => retrievedMessages.push(channelMatch.getMessage(request)));
+      callback(retrievedMessages);
     }
-    console.log(channelId, messageId);
     callback(null);
   }
 }
