@@ -1,29 +1,22 @@
 require('dotenv').config();
-const app = require('express')();
-const httpServer = require('http').createServer(app);
-const options = {
-  cors: {
-    origin: process.env.ALLOWED_ORIGIN,
-  },
-};
-const io = require('socket.io')(httpServer, options);
+const { httpServer, emitter } = require('./chat-emitter');
 
-const chatManager = require('./classes/manager')(io);
-chatManager.createChannel('main');
+const chatManager = require('./classes/manager')();
+chatManager.conversationManager.createChannel('main');
 
-io.on('connection', socket => {
+emitter.io.on('connection', socket => {
   chatManager.handleSocketConnect(socket);
 
   socket.on('disconnect', () => {
-    chatManager.handleSocketDisconnect(socket);
+    chatManager.userManager.remove(socket);
   });
 
   socket.on('channel-message', textContent => {
-    chatManager.newChannelMessage(socket, textContent);
+    chatManager.handleNewMessage(socket, textContent);
   });
 
   socket.on('need-messages', (channelId, messageIdArray, callback) => {
-    chatManager.serveMessages(channelId, messageIdArray, callback);
+    chatManager.handleGetMessagesRequest(channelId, messageIdArray, callback);
   });
 
   socket.on('set-channel', channelId => {
@@ -31,7 +24,7 @@ io.on('connection', socket => {
   });
 
   socket.on('create-channel', label => {
-    chatManager.createChannel(label);
+    chatManager.conversationManager.createChannel(label);
   });
 
   socket.on('update-name', newName => {
@@ -41,10 +34,6 @@ io.on('connection', socket => {
   socket.on('is-typing', () => {
     chatManager.handleIsTyping(socket);
   });
-});
-
-app.get('/', (req, res) => {
-  res.send(`Currently connected sockets: ${io.of('/').sockets.size}`);
 });
 
 const port = process.env.PORT;

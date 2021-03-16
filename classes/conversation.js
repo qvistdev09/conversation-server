@@ -1,3 +1,4 @@
+const { emitter } = require('../chat-emitter');
 const BaseStore = require('./base-store');
 
 class Conversation extends BaseStore {
@@ -8,6 +9,17 @@ class Conversation extends BaseStore {
     this.messages = [];
   }
 
+  get publicInfo() {
+    return {
+      id: this.id,
+      label: this.meta.label,
+    };
+  }
+
+  get sequence() {
+    return this.messages.map(message => message.messageId).join('-');
+  }
+
   addMessage(userId, textContent) {
     const newMessage = {
       messageId: this.createId(this.messages, 'messageId'),
@@ -16,6 +28,8 @@ class Conversation extends BaseStore {
       date: new Date().toString(),
     };
     this.messages.push(newMessage);
+    emitter.toAll('new-channel-message', this.id);
+    this.emitSequence();
   }
 
   removeMessage(messageId) {
@@ -27,8 +41,8 @@ class Conversation extends BaseStore {
     return matchedEntry ? matchedEntry : null;
   }
 
-  getSequence() {
-    return this.messages.map(message => message.messageId).join('-');
+  emitSequence() {
+    emitter.toRoom(this.id.toString(), 'new-sequence', this.sequence, this.id);
   }
 }
 
