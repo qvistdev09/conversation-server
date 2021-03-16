@@ -6,6 +6,7 @@ chatManager.conversationManager.createChannel('main');
 
 emitter.io.on('connection', socket => {
   chatManager.handleSocketConnect(socket);
+  console.log(socket.client.conn.remoteAddress);
 
   socket.on('disconnect', () => {
     chatManager.userManager.remove(socket);
