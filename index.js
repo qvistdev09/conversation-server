@@ -6,7 +6,7 @@ chatManager.conversationManager.createChannel('main');
 
 emitter.io.on('connection', socket => {
   chatManager.handleSocketConnect(socket);
-  console.log(socket.client.conn.remoteAddress);
+  console.log(socket.handshake['x-forwarded-for']);
 
   socket.on('disconnect', () => {
     chatManager.userManager.remove(socket);
