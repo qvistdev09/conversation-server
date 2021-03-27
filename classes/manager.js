@@ -24,6 +24,7 @@ class Manager extends BaseStore {
 
   handleSocketConnect(socket) {
     this.userManager.add(socket);
+    emitter.toSocket(socket, 'is-connected');
     emitter.toSocket(socket, 'clear-cache');
     emitter.toSocket(socket, 'channel-list', this.conversationManager.publicChannelList);
     socket.leaveAll();
