@@ -59,6 +59,10 @@ class Bot {
     ];
   }
 
+  get activeConversation() {
+    return this.hiddenFields.activeConversation;
+  }
+
   get publicInfo() {
     return {
       id: this.id,
