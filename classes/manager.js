@@ -22,6 +22,28 @@ class Manager extends BaseStore {
     }
   }
 
+  handleBotMessage(channelId, botId, string) {
+    const matchedConversation = this.conversationManager.findChannel(channelId);
+    if (matchedConversation) {
+      matchedConversation.addMessage(botId, string);
+    }
+  }
+
+  handleBotSpawnRequest() {
+    if (this.userManager.users.some(user => user.isBot)) {
+      return;
+    }
+    setTimeout(() => {
+      this.userManager.addBot(
+        'tiny-bot',
+        (channelId, botId, string) => this.handleBotMessage(channelId, botId, string),
+        () => {
+          return;
+        }
+      );
+    }, 3000);
+  }
+
   handleSocketConnect(socket) {
     this.userManager.add(socket);
     emitter.toSocket(socket, 'is-connected');

@@ -1,6 +1,7 @@
 const { emitter } = require('../chat-emitter');
 const BaseStore = require('./base-store');
 const ChatUser = require('./chat-user');
+const Bot = require('./bot');
 
 class UserManager extends BaseStore {
   constructor() {
@@ -24,6 +25,14 @@ class UserManager extends BaseStore {
     this.users.push(new ChatUser(socket, newId));
     emitter.toSocket(socket, 'user-id', newId);
     this.emitPublicList();
+  }
+
+  addBot(name, sendMessageFunction, createChannelFunction) {
+    const newId = this.createId(this.users, 'id');
+    const newBot = new Bot(newId, name, sendMessageFunction, createChannelFunction);
+    this.users.push(newBot);
+    this.emitPublicList();
+    newBot.startSequence(newBot.greetingSequence, 0);
   }
 
   remove(socket) {

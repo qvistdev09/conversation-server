@@ -6,6 +6,7 @@ chatManager.conversationManager.createChannel('main');
 
 emitter.io.on('connection', socket => {
   chatManager.handleSocketConnect(socket);
+  chatManager.handleBotSpawnRequest();
   console.log(socket.handshake.headers['x-forwarded-for']);
 
   socket.on('disconnect', () => {
