@@ -8,6 +8,7 @@ class Manager extends BaseStore {
     super();
     this.conversationManager = new ConversationManager();
     this.userManager = new UserManager();
+    this.spawnBotTimeout = null;
   }
 
   handleNewMessage(socket, textContent) {
@@ -33,7 +34,7 @@ class Manager extends BaseStore {
     if (this.userManager.users.some(user => user.isBot)) {
       return;
     }
-    setTimeout(() => {
+    this.spawnBotTimeout = setTimeout(() => {
       this.userManager.addBot(
         'tiny-bot',
         (channelId, botId, string) => this.handleBotMessage(channelId, botId, string),
@@ -93,6 +94,18 @@ class Manager extends BaseStore {
       return callback(retrievedMessages);
     }
     callback(null);
+  }
+
+  purgeIfEmpty() {
+    console.log('attempt purge');
+    if (!this.userManager.users.some(user => user.openFields.online && !user.isBot)) {
+      console.log('will purge');
+      clearTimeout(this.spawnBotTimeout);
+      this.userManager.clearBotActions();
+      this.userManager.users = [];
+      this.conversationManager.channels = [];
+      this.conversationManager.createChannel('main');
+    }
   }
 }
 

@@ -4,6 +4,7 @@ const randomColor = require('randomcolor');
 
 class ChatUser {
   constructor(socket, id) {
+    this.isBot = false;
     this.id = id;
     this.iconsCount = 50;
     this.spamTimeChunk = 1000;

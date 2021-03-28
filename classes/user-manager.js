@@ -64,6 +64,14 @@ class UserManager extends BaseStore {
       .filter(user => user.hiddenFields.isTyping)
       .map(user => user.id);
   }
+
+  clearBotActions() {
+    const bots = this.users.filter(user => user.isBot);
+    bots.forEach(bot => {
+      console.log('Bot actions cancelled');
+      bot.clearAction();
+    });
+  }
 }
 
 module.exports = UserManager;

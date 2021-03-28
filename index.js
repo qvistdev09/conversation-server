@@ -11,6 +11,7 @@ emitter.io.on('connection', socket => {
 
   socket.on('disconnect', () => {
     chatManager.userManager.remove(socket);
+    chatManager.purgeIfEmpty();
   });
 
   socket.on('channel-message', textContent => {
