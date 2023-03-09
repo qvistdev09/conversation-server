@@ -9,13 +9,6 @@ In this app you can:
 * see notifications of new messages
 * be greeted by a bot if you are the only user
 
-## Have a look!
-
-The app can be accessed via the frontend which is hosted on Github Pages:
-https://qvistdev09.github.io/conversation-client/
-
-The back-end is a Node.js server hosted on Heroku.
-
 ## Tech stuff
 
 Want to see the repo for the front-end? Here it is:
