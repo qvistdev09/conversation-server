@@ -1,0 +1,20 @@
+{
+  "name": "conversation-server",
+  "version": "0.0.1",
+  "description": "This is a real-time chat client, of which the original prototype was made in just one day, as part of SALT's (School of Applied Technology, Stockholm) HackDay - a special event during the boot camp, where we were tasked with building a complete full-stack application of our choice in one day.",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "engines": {
+    "node": "20.x"
+  },
+  "author": "Oscar Lindqvist",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.9.0",
+    "typescript": "^5.2.2"
+  }
+}
