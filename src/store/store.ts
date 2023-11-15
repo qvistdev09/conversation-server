@@ -1,12 +1,12 @@
-import crypto from "crypto";
-import { Action, ConnectUser } from "./actions";
+import { ActionsMap } from "./actions";
 import { StoreModel } from "./interfaces";
 
 export class Store {
   private state: StoreModel;
+  private reducers: Reducers = {};
   private subscribers: {
-    action: abstract new (...args: any) => Action;
-    callback: (state: StoreModel, action: Action) => void;
+    action: Action;
+    callback: (state: StoreModel, data: Effect) => void;
   }[];
 
   constructor(initialState: StoreModel) {
@@ -14,36 +14,45 @@ export class Store {
     this.subscribers = [];
   }
 
-  public subscribe<T extends abstract new (...args: any) => Action>(
+  public subscribe<T extends Action>(
     action: T,
-    callback: (state: StoreModel, payload: InstanceType<T>) => void
+    callback: (state: StoreModel, data: Effect<T>) => void
   ) {
-    this.subscribers.push({ action, callback: callback as any });
+    this.subscribers.push({ action, callback });
   }
 
-  public dispatch(action: Action) {
-    if (action instanceof ConnectUser) {
-      this.state.users = [
-        ...this.state.users,
-        {
-          id: crypto.randomUUID(),
-          displayName: "random",
-          color: "random",
-          icon: "random",
-          isTyping: false,
-          activeRoom: "main",
-          socket: action.socket,
-        },
-      ];
+  public addReducers(reducers: Reducers) {
+    this.reducers = { ...this.reducers, ...reducers };
+    return this;
+  }
+
+  public dispatch<T extends Action>(action: Action, payload: Payload<T>) {
+    const reducer = this.reducers[action] as Reducers[T] | undefined;
+    if (reducer) {
+      const { state, effect } = reducer(this.state, payload);
+      this.state = state;
+      this.emit(action, effect);
     }
-    this.emit(action);
   }
 
-  private emit(payload: Action) {
+  private emit<T extends Action>(action: T, effect: Effect<T>) {
     for (const subscriber of this.subscribers) {
-      if (payload instanceof subscriber.action) {
-        subscriber.callback(this.state, payload);
+      if (subscriber.action === action) {
+        subscriber.callback(this.state, effect);
       }
     }
   }
 }
+
+export type Reducers = Partial<{
+  [Property in keyof ActionsMap]: (
+    state: StoreModel,
+    payload: ActionsMap[Property]["trigger"]
+  ) => { state: StoreModel; effect: ActionsMap[Property]["effect"] };
+}>;
+
+export type Action = keyof ActionsMap;
+
+export type Payload<T extends Action> = ActionsMap[T]["trigger"];
+
+export type Effect<T extends Action = Action> = ActionsMap[T]["effect"];

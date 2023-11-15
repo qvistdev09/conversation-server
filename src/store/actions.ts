@@ -1,16 +1,13 @@
 import { Socket } from "socket.io";
+import { User } from "./interfaces";
 
 export type ActionsMap = {
   CONNECT_USER: {
     trigger: { socket: Socket };
-    response: { id: string };
+    effect: { user: User };
+  };
+  DELETE_USER: {
+    trigger: { id: string };
+    effect: { user: User };
   };
 };
-
-export type ActionType = keyof ActionsMap;
-
-export class ConnectUser {
-  constructor(public socket: Socket) {}
-}
-
-export type Action = ConnectUser;
