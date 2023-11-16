@@ -1,33 +1,33 @@
-import { ActionsMap } from "./actions";
-import { StoreModel } from "./interfaces";
-
-export class Store {
-  private state: StoreModel;
-  private reducers: Reducers = {};
+export class Store<StateModel, StoreActionsMap extends GenericActionsMap = {}> {
+  private state: StateModel;
+  private reducers: Reducers<StoreActionsMap, StateModel> = {};
   private subscribers: {
-    action: Action;
-    callback: (state: StoreModel, data: Effect) => void;
+    action: Action<StoreActionsMap>;
+    callback: (state: StateModel, data: Effect<StoreActionsMap>) => void;
   }[];
 
-  constructor(initialState: StoreModel) {
+  constructor(initialState: StateModel) {
     this.state = initialState;
     this.subscribers = [];
   }
 
-  public subscribe<T extends Action>(
-    action: T,
-    callback: (state: StoreModel, data: Effect<T>) => void
+  public subscribe<SubscriptionInterest extends Action<StoreActionsMap>>(
+    action: SubscriptionInterest,
+    callback: (state: StateModel, data: Effect<StoreActionsMap, SubscriptionInterest>) => void
   ) {
     this.subscribers.push({ action, callback });
   }
 
-  public addReducers(reducers: Reducers) {
+  public addReducers(reducers: Reducers<StoreActionsMap, StateModel>) {
     this.reducers = { ...this.reducers, ...reducers };
     return this;
   }
 
-  public dispatch<T extends Action>(action: Action, payload: Payload<T>) {
-    const reducer = this.reducers[action] as Reducers[T] | undefined;
+  public dispatch<DispatchAction extends Action<StoreActionsMap>>(
+    action: DispatchAction,
+    payload: Payload<StoreActionsMap, DispatchAction>
+  ) {
+    const reducer = this.reducers[action] as Reducers<StoreActionsMap, StateModel>[DispatchAction];
     if (reducer) {
       const { state, effect } = reducer(this.state, payload);
       this.state = state;
@@ -35,7 +35,10 @@ export class Store {
     }
   }
 
-  private emit<T extends Action>(action: T, effect: Effect<T>) {
+  private emit<EmitAction extends Action<StoreActionsMap>>(
+    action: EmitAction,
+    effect: Effect<StoreActionsMap, EmitAction>
+  ) {
     for (const subscriber of this.subscribers) {
       if (subscriber.action === action) {
         subscriber.callback(this.state, effect);
@@ -44,15 +47,28 @@ export class Store {
   }
 }
 
-export type Reducers = Partial<{
-  [Property in keyof ActionsMap]: (
-    state: StoreModel,
+export type Reducers<ActionsMap extends GenericActionsMap, StateModel> = Partial<{
+  [Property in keyof ActionsMap]: <State extends StateModel>(
+    state: State,
     payload: ActionsMap[Property]["trigger"]
-  ) => { state: StoreModel; effect: ActionsMap[Property]["effect"] };
+  ) => { state: StateModel; effect: ActionsMap[Property]["effect"] };
 }>;
 
-export type Action = keyof ActionsMap;
+export type Action<ActionsMap extends GenericActionsMap> = keyof ActionsMap;
 
-export type Payload<T extends Action> = ActionsMap[T]["trigger"];
+export type Payload<
+  ActionsMap extends GenericActionsMap,
+  SpecificAction extends Action<ActionsMap>
+> = ActionsMap[SpecificAction]["trigger"];
 
-export type Effect<T extends Action = Action> = ActionsMap[T]["effect"];
+export type Effect<
+  ActionsMap extends GenericActionsMap,
+  SpecificAction extends Action<ActionsMap> = Action<ActionsMap>
+> = ActionsMap[SpecificAction]["effect"];
+
+type GenericActionsMap = {
+  [key: string]: {
+    trigger: any;
+    effect: any;
+  };
+};

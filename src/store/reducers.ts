@@ -1,10 +1,9 @@
+import { ActionsMap } from "./actions";
+import { StoreModel } from "./interfaces";
 import { Reducers } from "./store";
 
-const reducers: Reducers = {
-  CONNECT_USER(state, payload) {
-    return {
-      state,
-      effect: { user: "" as any },
-    };
+export const reducers: Reducers<ActionsMap, StoreModel> = {
+  CONNECT_USER: (state, payload) => {
+    return { state, effect: { user: "" } };
   },
 };
