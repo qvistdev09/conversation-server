@@ -1,10 +1,10 @@
-abstract class Either<T> {
+export abstract class Either<T> {
   abstract map<P>(f: (value: T) => Either<P>): Either<P>;
   abstract then(f: (value: T) => void): Either<T>;
   abstract catch(f: (value: unknown) => void): Either<T>;
 }
 
-class Right<T> extends Either<T> {
+export class Right<T> extends Either<T> {
   private value: T;
 
   constructor(value: T) {
@@ -26,7 +26,7 @@ class Right<T> extends Either<T> {
   }
 }
 
-class Left<T> extends Either<T> {
+export class Left<T> extends Either<T> {
   private error: unknown;
 
   constructor(error: any) {
@@ -46,17 +46,4 @@ class Left<T> extends Either<T> {
     f(this.error);
     return this;
   }
-}
-
-const hey = new Right(5)
-  .map(numberToString)
-  .then((value) => {})
-  .catch((err) => {})
-  .then((value) => {});
-
-function numberToString(value: number) {
-  if (value < 5) {
-    return new Left<string>("value too small");
-  }
-  return new Right(value.toString());
 }
